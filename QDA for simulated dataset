@@ -1,0 +1,65 @@
+library(MASS)
+library(caret)
+library(ggplot2)
+library(cluster)
+library(klaR)
+nearest_nei<-c(1:10)
+mu1<-c(30,31,29);mu1
+mu2<-c(29,28,30);mu2
+mu3<-c(31,29,32);mu3
+sig<-function(n,ev=runif(n,0,10))
+{
+z<-matrix(ncol=n,rnorm(n^2))
+deco<-qr(z)
+Q<-qr.Q(deco)
+R<-qr.R(deco)
+d<-diag(R)
+ph<-d/abs(d)
+o<-Q%*%diag(ph)
+z<-t(o)%*%diag(ev)%*%o
+return(z)
+}
+sigma<-sig(n=3,1:3)
+round(sigma)
+eigen(sigma)$val
+dim(sigma)<-c(3,3)
+N<-30
+nclasses<-3
+set.seed(1234)
+X1<-mvrnorm(N,mu1,sigma);X1
+X2<-mvrnorm(N,mu2,sigma);X2
+X3<-mvrnorm(N,mu3,sigma);X3
+50
+da<-rbind(X1,X2,X3);da
+dcl<-rep(1:nclasses,each=N);dcl
+D<-rbind(X1,X2,X3);D
+dat<-data.frame(D,dcl);dat
+set.seed(2021)
+trainsamp<-sample(90,60);trainsamp
+testsamp<-(setdiff(c(1:90),trainsamp));testsamp
+test<-dat[testsamp,];test
+train<-dat[trainsamp,];train
+ntest<-nrow(test);ntest
+ntrain<-nrow(train);ntrain
+trainclass<-dat[trainsamp,4];trainclass
+trclass<-as.factor(trainclass);trclass
+testclass<-dat[testsamp,4];testclass
+tsclass<-as.factor(testclass);tsclass
+str(dat)
+dat[1:3] <- scale(dat[1:3]);dat
+model <- qda(dcl~., data=train);model
+predicted <- predict(model, test);predicted
+names(predicted)
+head(predicted$class)
+head(predicted$posterior)
+head(predicted$x)
+mean(predicted$class==test$dcl)
+data.qda <- qda(dcl~ . , data = train)
+qda.train <- predict(data.qda,train)
+train$qda <- qda.train$class
+table(train$qda,train$dcl)
+qda.test <- predict(data.qda,test)
+test$qda <- qda.test$class
+table(test$qda,test$dcl)
+class<-factor(rep(c("one","two","three"),each=30));class
+partimat(x=dat[,1:4],grouping=class, method = "qda")
