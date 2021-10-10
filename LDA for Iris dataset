@@ -1,0 +1,32 @@
+library(MASS)
+library(caret)
+library(ggplot2)
+library(class)
+library(cluster)
+attach(iris)
+str(iris)
+iris[1:4] <- scale(iris[1:4]);iris
+apply(iris[1:4], 2, mean)
+apply(iris[1:4], 2, sd)
+set.seed(1)
+sample <- sample(c(TRUE, FALSE), nrow(iris), replace=TRUE, prob=c(0.7,0.3));sample
+train <- iris[sample,];train
+test <- iris[!sample, ] ;test
+model0 <- lda(Species~., data=train)
+model0
+predicted <- predict(model0, test);predicted
+names(predicted)
+head(predicted$class)
+head(predicted$posterior)
+head(predicted$x)
+mean(predicted$class==test$Species)
+lda_plot <- cbind(train, predict(model0)$x)
+ggplot(lda_plot, aes(LD1, LD2)) +
+geom_point(aes(color = Species))
+iris.lda <- lda(Species ~ . , data = train)
+lda.test <- predict(iris.lda,test)
+test$lda <- lda.test$class
+table(test$lda,test$Species)
+lda.train <- predict(iris.lda,train)
+train$lda <- lda.train$class
+table(train$lda,train$Species)
