@@ -1,0 +1,46 @@
+nearest.neigh=c(1:10)
+mu1=c(30,31,29);mu1
+mu2=c(29,28,30);mu2
+mu3=c(31,29,32);mu3
+mu1;mu2;mu3
+sig=c(2,-1,0,-1,2,0,0,0,2)
+dim(sig)=c(3,3)
+N=30
+nclasses=3
+library(MASS)
+library(caret)
+library(ggplot2)
+library(cluster)
+library(klaR)
+set.seed(1234)
+x1=mvrnorm(N,mu1,sig);x1
+x2=mvrnorm(N,mu2,sig);x2
+x3=mvrnorm(N,mu3,sig);x3
+d=rbind(x1,x2,x3);da
+c1ass=rep(1:nclasses,each=N);c1ass
+dat=data.frame(d,c1ass);dat
+set.seed(99)
+rnum<- sample(rep(1:90));rnum
+dat=data.frame(d,c1ass);dat
+dat<- dat[rnum,]
+head(dat)
+normalize <- function(x){
+return ((x-min(x))/(max(x)-min(x)))
+}
+normalize(1:4)
+58
+dat.new<- as.data.frame(lapply(dat[,-4],normalize))
+summary(dat.new)
+dat.train<- dat.new[1:60,]
+dat.train.target<- dat[1:60,4];dat.train.target
+dat.test<- dat.new[61:90,]
+dat.test.target<- dat[61:90,4];dat.test.target
+require(class)
+model5<- knn(train=dat.train, test=dat.test, cl=dat.train.target, k=16);model5
+table(factor(model5))
+table(dat.test.target, model5)
+model6=knn(test=dat.train,train=dat.test,cl=dat.test.target,k=16)
+table(factor(model6))
+table(dat.train.target,model6)
+class<-factor(rep(c("one","two","three"),each=30));class
+partimat(x=dat[,1:4],grouping=class, method = "sknn")
